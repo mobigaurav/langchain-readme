@@ -1,13 +1,14 @@
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from langchain.chat_models import ChatOpenAI
 
 class LLMContentGenerator:
     def __init__(self, openai_api_key):
         """
         Initializes the LLMContentGenerator with an OpenAI API key.
         """
-        self.llm = OpenAI(openai_api_key=openai_api_key, model="gpt-4")
+        self.llm = ChatOpenAI(openai_api_key=openai_api_key, model="gpt-4")
     
     def generate_section(self, prompt_template, variables):
         """

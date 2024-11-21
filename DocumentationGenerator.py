@@ -37,7 +37,7 @@ class DocumentationGenerator:
         - project_data: Dictionary containing technical details of the project.
         - output_file: Path to save the generated documentation.
         """
-        template = self.env.get_template("technical_doc_template.md")
+        template = self.env.get_template("TECHNICAL_DOC.md")
         tech_doc_content = template.render(project_data)
 
         with open(output_file, "w") as file:

@@ -5,20 +5,29 @@ import PackageDescription
 
 let package = Package(
     name: "swiftParser",
+    platforms: [
+        .macOS(.v12)
+    ],
     dependencies: [
-    .package(url: "https://github.com/apple/swift-syntax.git", from: "0.50700.0")
+        // Add SwiftSyntax as a dependency
+        .package(url: "https://github.com/apple/swift-syntax.git", from: "0.50700.0")
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
+        // Define the executable target
         .executableTarget(
-            name: "swiftParser"),
+            name: "swiftParser",
+            dependencies: [
+                .product(name: "SwiftSyntax", package: "swift-syntax")
+            ],
+            path: "Sources/swiftParser" // Ensure this path exists
+        ),
+        // Define the library target
         .target(
-        name: "SwiftParser",
-        dependencies: ["SwiftSyntax"]
-    )
+            name: "SwiftParser",
+            dependencies: [
+                .product(name: "SwiftSyntax", package: "swift-syntax")
+            ],
+            path: "Sources/SwiftParser" // Ensure this path exists
+        )
     ]
 )
-
-
-

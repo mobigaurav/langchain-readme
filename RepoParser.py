@@ -1,15 +1,18 @@
 from github import Github
 import os
-import LanguageDetector
-import PythonComponentExtractor
-import SwiftComponentExtractor
-import DocumentationGenerator
-import LLMContentGenerator
+from LanguageDetector import LanguageDetector
+from PythonComponentExtractor import PythonComponentExtractor
+from JavaParser import JavaParser
+from JavaScriptParser import JavaScriptParser
+from SwiftComponentExtractor import SwiftComponentExtractor
+from DocumentationGenerator import DocumentationGenerator
+from LLMContentGenerator import LLMContentGenerator
 from langchain.prompts import PromptTemplate
+
 
 class RepoParser:
     def __init__(self, github_token, repo_name, content_generator):
-            """
+        """
             Handles parsing for a GitHub repository and integrates LLM for content generation.
 
             Parameters:
@@ -17,9 +20,9 @@ class RepoParser:
             - repo_name: Full GitHub repo name (e.g., 'user/repo').
             - content_generator: Instance of LLMContentGenerator for generating narrative content.
             """
-            self.github = Github(github_token)
-            self.repo = self.github.get_repo(repo_name)
-            self.content_generator = content_generator  # LLMContentGenerator instance
+        self.github = Github(github_token)
+        self.repo = self.github.get_repo(repo_name)
+        self.content_generator = content_generator  # LLMContentGenerator instance
 
     def list_files(self, file_extensions=None):
         """
@@ -41,7 +44,7 @@ class RepoParser:
                 if file_extensions is None or any(content_file.path.endswith(ext) for ext in file_extensions):
                     files.append(content_file.path)
         return files
-    
+
     def categorize_files(self):
         """
         Categorizes files into 'code_files', 'config_files', and 'doc_files'.
@@ -54,7 +57,7 @@ class RepoParser:
             "config_files": [],
             "doc_files": []
         }
-        
+
         for file_path in self.list_files():
             if file_path.endswith(('.py', '.js', '.java', '.cs', '.cpp', '.swift')):
                 categorized_files["code_files"].append(file_path)
@@ -67,7 +70,7 @@ class RepoParser:
                 pass
 
         return categorized_files
-    
+
     def get_file_content(self, file_path):
         """
         Fetches the content of a specific file in the repository.
@@ -100,7 +103,7 @@ class RepoParser:
                     print(f"Error reading {file_path}: {e}")
 
         return all_files_content
-    
+
     def extract_all_components(languages, parser):
         """
         Extracts components from all categorized files.
@@ -124,13 +127,33 @@ class RepoParser:
                         'file': file_path,
                         'components': components
                     })
-                if lang == "Swift":
-                    extractor = SwiftComponentExtractor(file_content)
-                    components = extractor.extract_components()
-                    components_by_language[lang].append({
+                elif lang == "Swift":
+                # Check if Swift build tools are available
+                    if os.path.exists("./swift/build"):
+                        # Assuming `SwiftComponentExtractor` is implemented
+                        # extractor = SwiftComponentExtractor(file_content)
+                        # components = extractor.extract_components()
+                        components_by_language[lang].append({
+                            'file': file_path,
+                            'components': "Swift components extraction not implemented"
+                        })
+                elif lang == "Java":
+                     extractor = JavaParser(file_content)
+                     components = extractor.extract_components()
+                     components_by_language[lang].append({
                         'file': file_path,
                         'components': components
                     })
+
+                elif lang == "Javascript":
+                     extractor = JavaScriptParser(file_content)
+                     components = extractor.extract_components()
+                     components_by_language[lang].append({
+                        'file': file_path,
+                        'components': components
+                    })
+                else:
+                    print(f"Swift build tools not found. Skipping {file_path}.")
                 # Add cases for other languages here
         return components_by_language
 
@@ -143,19 +166,20 @@ class RepoParser:
         detector = LanguageDetector(files)
         primary_language = detector.detect_language_by_extension()
         language_summary = detector.summarize_languages(primary_language)
-    
-        components_summary = f"{len(files)} files, primary language: {primary_language}"
-        components_by_language = self.extract_all_components(primary_language, self)
+
+       # components_summary = f"{len(files)} files, primary language: {primary_language}"
+       # components_by_language = self.extract_all_components(primary_language)
 
         # Generate Overview
         overview_prompt = PromptTemplate(
-            input_variables=["repo_name", "primary_language", "language_summary"],
+            input_variables=["repo_name",
+                             "primary_language", "language_summary"],
             template="""
             Write a concise project overview for a README. The repository is named "{repo_name}". 
             The primary language is {primary_language}. It includes the following components: {language_summary}.
             """
         )
-        overview = self.content_generator.generate_content(overview_prompt, {
+        overview = content_generator.generate_section(overview_prompt, {
             "repo_name": repo_name,
             "primary_language": primary_language,
             "language_summary": language_summary
@@ -168,25 +192,34 @@ class RepoParser:
             List the key features of the project "{repo_name}" written in {primary_language}.
             """
         )
-        features = content_generator.generate_content(features_prompt, {
+        features = content_generator.generate_section(features_prompt, {
             "repo_name": repo_name,
             "primary_language": primary_language
         }).split("\n")
 
-
         code_overview_prompt = PromptTemplate(
             input_variables=["repo_name", "primary_language"],
             template="""
-            Write a technical overview for the project "{project_name}". Highlight the main modules:
-            {modules}.
+            Write a technical overview for the project "{repo_name}" written in {primary_language}.
             """
         )
 
-        code_overview = content_generator.generate_content(code_overview_prompt, {
-        "repo_name": repo_name,
-        "primary_language": primary_language
-         }).split("\n")
+        code_overview = content_generator.generate_section(code_overview_prompt, {
+            "repo_name": repo_name,
+            "primary_language": primary_language
+        }).split("\n")
 
+        installation_overview_prompt = PromptTemplate(
+            input_variables=["repo_name", "primary_language"],
+            template="""
+             Provide Installation instruction if any for the repository "{repo_name}" written in {primary_language}.
+            """
+        )
+
+        installation_instructions = content_generator.generate_section(installation_overview_prompt, {
+            "repo_name": repo_name,
+            "primary_language": primary_language
+        }).split("\n")
 
         usage_prompt = PromptTemplate(
             input_variables=["repo_name", "primary_language"],
@@ -195,7 +228,7 @@ class RepoParser:
             """
         )
 
-        usage_examples = content_generator.generate_content(usage_prompt, {
+        usage_examples = content_generator.generate_section(usage_prompt, {
             "repo_name": repo_name,
             "primary_language": primary_language
         }).split("\n")
@@ -205,19 +238,22 @@ class RepoParser:
             "features": features,
             "files": files,
             "code_overview": code_overview,
-            "usage_examples": usage_examples
+            "usage_examples": usage_examples,
+            "installation_instructions": installation_instructions
 
         }
 
 
-
-api_key = "Replace with your own key"
+api_key = "use your own key"
 content_generator = LLMContentGenerator(api_key)
 
-repo_name = "https://github.com/mobigaurav/cse571-ai"
-github_token = "your_github_token"  # optional
+repo_name = "mobigaurav/internetTV"
+#repo_name = "mobigaurav/cse571-ai"
+#repo_name = "mobigaurav/Fooddelivery-clone"
+#repo_name = "mobigaurav/blockchain"
+github_token = "use your own key"  # optional
 
-parser = RepoParser(repo_name, github_token, content_generator)
+parser = RepoParser(github_token , repo_name,  content_generator)
 
 # Step 3: Fetch Data and Generate LLM Content
 categorized_files = parser.categorize_files()
@@ -233,9 +269,24 @@ project_data = {
     "project_name": parser.repo.name,
     "overview": parsed_content["overview"],
     "features": parsed_content["features"],
-    #"installation_instructions": installation_section,
+    "installation_instructions": parsed_content["installation_instructions"],
     "usage_examples": parsed_content["usage_examples"],
-    "license": parser.repo.license  # Replace with actual license fetched from repo if available.
+    "code_overview": parsed_content["code_overview"],
+    # Replace with actual license fetched from repo if available.
+    "license": parser.repo.license
 }
 generator = DocumentationGenerator(template_dir="templates")
 generator.generate_readme(project_data)
+
+# tech_doc_data = {
+#     "project_name": parser.repo.name,
+#     "overview": parsed_content["overview"],
+#     "features": parsed_content["features"],
+#     "installation_instructions": parsed_content["installation_instructions"],
+#     "usage_examples": parsed_content["usage_examples"],
+#     "code_overview": parsed_content["code_overview"],
+#     # Replace with actual license fetched from repo if available.
+#     "license": parser.repo.license
+# }
+
+# generator.generate_technical_doc(tech_doc_data)

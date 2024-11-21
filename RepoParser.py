@@ -244,7 +244,7 @@ class RepoParser:
         }
 
 
-api_key = "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"
+api_key = "use your api key"
 content_generator = LLMContentGenerator(api_key)
 
 #repo_name = "mobigaurav/internetTV"
@@ -252,7 +252,7 @@ repo_name = "mobigaurav/langchain-readme"
 #repo_name = "mobigaurav/cse571-ai"
 #repo_name = "mobigaurav/Fooddelivery-clone"
 #repo_name = "mobigaurav/blockchain"
-github_token = "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"  # optional
+github_token = "use your api key"  # optional
 
 parser = RepoParser(github_token , repo_name,  content_generator)
 

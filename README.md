@@ -22,39 +22,21 @@ The project has a total of 9 Python components, 4 Markdown components, 3 Unknown
 
 - 1. Multiple Language Support: The project supports multiple programming languages including Python, JavaScript, Java, and Swift. This is shown by the presence of files like 'JavaParser.py', 'JavaScriptParser.py', 'PythonComponentExtractor.py', 'SwiftComponentExtractor.py' etc.
 
-- 
-
 - 2. Language Detection: The 'LanguageDetector.py' file suggests that the project has the ability to detect the language of a given codebase.
-
-- 
 
 - 3. Swift Package: The project includes a Swift package, as evidenced by the 'Package.swift' file in the 'swiftParser' directory.
 
-- 
-
 - 4. Documentation Generation: The project can generate documentation as suggested by the 'DocumentationGenerator.py' and 'LLMContentGenerator.py' files. There are also markdown templates for README and technical documentation.
-
-- 
 
 - 5. Repository Parsing: The presence of 'RepoParser.py' suggests that the project is capable of parsing repositories.
 
-- 
-
 - 6. HTML Parsing: 'HTMLParser.py' implies that the project can parse HTML for some functionality.
-
-- 
 
 - 7. Integrated with Visual Studio Code: The '.vscode/launch.json' file indicates that the project can be run and debugged using the Visual Studio Code IDE.
 
-- 
-
 - 8. Gitignore Files: The presence of '.gitignore' files indicates that the repository has been configured to ignore certain files and directories for version control using Git.
 
-- 
-
 - 9. Technical Documentation: The project includes a technical documentation file, 'TECHNICAL_DOC.md', which likely provides in-depth technical details about the project.
-
-- 
 
 - 10. Readme File: The 'README.md' file is used to provide an overview of the project, its features, installation instructions, and other general information.
 

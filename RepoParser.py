@@ -157,127 +157,43 @@ class RepoParser:
                 # Add cases for other languages here
         return components_by_language
 
-    def generate_content_with_llm(self):
-        """
-        Generates descriptive content using LLM based on repository details.
-        """
-        repo_name = self.repo.name
-        files = parser.list_files()
-        detector = LanguageDetector(files)
-        primary_language = detector.detect_language_by_extension()
-        language_summary = detector.summarize_languages(primary_language)
-
-       # components_summary = f"{len(files)} files, primary language: {primary_language}"
-       # components_by_language = self.extract_all_components(primary_language)
-
-        # Generate Overview
-        overview_prompt = PromptTemplate(
-            input_variables=["repo_name",
-                             "primary_language", "language_summary"],
-            template="""
-            Write a concise project overview for a README. The repository is named "{repo_name}". 
-            The primary language is {primary_language}. It includes the following components: {language_summary}.
-            """
-        )
-        overview = content_generator.generate_section(overview_prompt, {
-            "repo_name": repo_name,
-            "primary_language": primary_language,
-            "language_summary": language_summary
-        })
-
-        # Generate Features
-        features_prompt = PromptTemplate(
-            input_variables=["repo_name", "primary_language"],
-            template="""
-            List the key features of the project "{repo_name}" written in {primary_language}.
-            """
-        )
-        features = content_generator.generate_section(features_prompt, {
-            "repo_name": repo_name,
-            "primary_language": primary_language
-        }).split("\n")
-
-        code_overview_prompt = PromptTemplate(
-            input_variables=["repo_name", "primary_language"],
-            template="""
-            Write a technical overview for the project "{repo_name}" written in {primary_language}.
-            """
-        )
-
-        code_overview = content_generator.generate_section(code_overview_prompt, {
-            "repo_name": repo_name,
-            "primary_language": primary_language
-        }).split("\n")
-
-        installation_overview_prompt = PromptTemplate(
-            input_variables=["repo_name", "primary_language"],
-            template="""
-             Provide Installation instruction if any for the repository "{repo_name}" written in {primary_language}.
-            """
-        )
-
-        installation_instructions = content_generator.generate_section(installation_overview_prompt, {
-            "repo_name": repo_name,
-            "primary_language": primary_language
-        }).split("\n")
-
-        usage_prompt = PromptTemplate(
-            input_variables=["repo_name", "primary_language"],
-            template="""
-            Provide usage examples for the repository "{repo_name}" written in {primary_language}.
-            """
-        )
-
-        usage_examples = content_generator.generate_section(usage_prompt, {
-            "repo_name": repo_name,
-            "primary_language": primary_language
-        }).split("\n")
-
-        return {
-            "overview": overview,
-            "features": features,
-            "files": files,
-            "code_overview": code_overview,
-            "usage_examples": usage_examples,
-            "installation_instructions": installation_instructions
-
-        }
 
 
-api_key = "use your api key"
-content_generator = LLMContentGenerator(api_key)
 
-#repo_name = "mobigaurav/internetTV"
-repo_name = "mobigaurav/langchain-readme"
-#repo_name = "mobigaurav/cse571-ai"
-#repo_name = "mobigaurav/Fooddelivery-clone"
-#repo_name = "mobigaurav/blockchain"
-github_token = "use your api key"  # optional
+# api_key = "use your api key"
+# content_generator = LLMContentGenerator(api_key)
 
-parser = RepoParser(github_token , repo_name,  content_generator)
+# #repo_name = "mobigaurav/internetTV"
+# repo_name = "mobigaurav/langchain-readme"
+# #repo_name = "mobigaurav/cse571-ai"
+# #repo_name = "mobigaurav/Fooddelivery-clone"
+# #repo_name = "mobigaurav/blockchain"
+# github_token = "use your api key"  # optional
 
-# Step 3: Fetch Data and Generate LLM Content
-categorized_files = parser.categorize_files()
-parsed_content = parser.generate_content_with_llm()
+#parser = RepoParser(github_token , repo_name,  content_generator)
 
-# Output the Results
-print("Categorized Files:", categorized_files)
-print("Generated Content:", parsed_content)
+# # Step 3: Fetch Data and Generate LLM Content
+# categorized_files = parser.categorize_files()
+# parsed_content = parser.generate_content_with_llm()
 
-# Generate README
-# Example for README.md
-project_data = {
-    "project_name": parser.repo.name,
-    "overview": parsed_content["overview"],
-    "features": parsed_content["features"],
-    "installation_instructions": parsed_content["installation_instructions"],
-    "usage_examples": parsed_content["usage_examples"],
-    "code_overview": parsed_content["code_overview"],
-    # Replace with actual license fetched from repo if available.
-    "license": parser.repo.license
-}
-generator = DocumentationGenerator(template_dir="templates")
-generator.generate_readme(project_data)
+# # Output the Results
+# print("Categorized Files:", categorized_files)
+# print("Generated Content:", parsed_content)
+
+# # Generate README
+# # Example for README.md
+# project_data = {
+#     "project_name": parser.repo.name,
+#     "overview": parsed_content["overview"],
+#     "features": parsed_content["features"],
+#     "installation_instructions": parsed_content["installation_instructions"],
+#     "usage_examples": parsed_content["usage_examples"],
+#     "code_overview": parsed_content["code_overview"],
+#     # Replace with actual license fetched from repo if available.
+#     "license": parser.repo.license
+# }
+# generator = DocumentationGenerator(template_dir="templates")
+# generator.generate_readme(project_data)
 
 # tech_doc_data = {
 #     "project_name": parser.repo.name,

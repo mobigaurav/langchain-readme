@@ -244,14 +244,15 @@ class RepoParser:
         }
 
 
-api_key = "use your own key"
+api_key = "use your api key"
 content_generator = LLMContentGenerator(api_key)
 
-repo_name = "mobigaurav/internetTV"
+#repo_name = "mobigaurav/internetTV"
+repo_name = "mobigaurav/langchain-readme"
 #repo_name = "mobigaurav/cse571-ai"
 #repo_name = "mobigaurav/Fooddelivery-clone"
 #repo_name = "mobigaurav/blockchain"
-github_token = "use your own key"  # optional
+github_token = "use your api key"  # optional
 
 parser = RepoParser(github_token , repo_name,  content_generator)
 
